@@ -1,3 +1,6 @@
+/*
+ * 20151109 some noise due to non-soldered wires contributing to false positive scores. should be fixed if wires permanently attached.
+ */
 //define pins
 #define irLedPin 14          // A0; IR Led on this pin
 #define irSensorPin 15       // A1; IR sensor on this pin
@@ -20,6 +23,13 @@ void setup()
 void loop()
 {  
   IRvalue = irRead(irSensorPin, irLedPin);
+  if (IRvalue ==  1){  // if goal scored, add it up
+    score = score + 1;
+    Serial.println("GOOOOOOOOL");
+    Serial.println("score :");
+    Serial.println(score);
+    delay(1000);
+    }
   Serial.println(IRvalue); //display the results
   delay(10); //wait for the string to be sent
 }
@@ -43,13 +53,8 @@ int irRead(int readPin, int triggerPin)
     digitalWrite(triggerPin, LOW); 
     delayMicroseconds(halfPeriod - 1);     // - 1 to make up for digitaWrite overhead    
   }
+    
   return digitalRead(readPin);
-  
-  // if goal scored, add it up
-  if (readPin == 1)
-  {
-    score = score + 1;
-    Serial.println("GOOOOOOOOL");
-    delay(100);
-    }
+
+
 }
