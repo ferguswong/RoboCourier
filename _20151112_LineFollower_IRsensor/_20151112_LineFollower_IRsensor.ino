@@ -31,8 +31,8 @@ int dir_a = 12;  //direction control for Ardumoto outputs A1 and A2 is on digita
 int dir_b = 13;  //direction control for Ardumoto outputs B3 and B4 is on digital pin 13  (Right motor)
 
 // motor tuning vars 
-int calSpeed = 100;   // tune value motors will run while auto calibration sweeping turn over line (0-255)
-int runspeed = 100;     // tune value motors will run while line-following
+int calSpeed = 110;   // tune value motors will run while auto calibration sweeping turn over line (0-255)
+int runspeed = 110;     // tune value motors will run while line-following
 
 // Proportional Control loop vars
 float error=0;
@@ -131,29 +131,39 @@ void setup()
 
 void loop() // main loop
 {
-//  // sense for stop points
-//  //stop_line(sensorValues);
-//    int stopcounter = 0;
-//  // check if all sensors see black. stop motors if true
-//  for (int x = 0; x<NUM_SENSORS; x++)
-//  {
-//    if (sensorValues[x] > 700){stopcounter = stopcounter + 1;}    
-//  } 
-//  if (stopcounter == 8)
+  // sense for stop points
+  //stop_line(sensorValues);
+    int stopcounter = 0;
+  // check if all sensors see black. stop motors if true
+  for (int x = 0; x<NUM_SENSORS; x++)
+  {
+    if (sensorValues[x] < 200){stopcounter = stopcounter + 1;}    
+  } 
+  if (stopcounter == 8)
+  {
+    m1Speed = 0;
+    m2Speed = 0;
+          digitalWrite(dir_a, LOW); 
+          digitalWrite(dir_b, LOW);  
+          analogWrite(pwm_a, m1Speed);
+          analogWrite(pwm_b, m2Speed);
+    delay(2000);
+      digitalWrite(dir_a, LOW);  
+      analogWrite(pwm_a, 120);
+      digitalWrite(dir_b, LOW);  
+      analogWrite(pwm_b, 120);
+    delay(500);
+    stopcounter = 0;
+  }
+  
+
+//  // check if 0,1,6,7 sensors are black
+//  if ( (sensorValues[0] > 200) && (sensorValues[1] > 700) && (sensorValues[6] > 700) && (sensorValues[7] > 700) )
 //  {
 //    m1Speed = 0;
 //    m2Speed = 0;
 //    delay(3000);
-//  }
-//  
-
-  // check if 0,1,6,7 sensors are black
-  if ( (sensorValues[0] > 700) && (sensorValues[1] > 700) && (sensorValues[6]) > 700) && (sensorValues[7] > 700) )
-  {
-    m1Speed = 0;
-    m2Speed = 0;
-    delay(3000);
-   }
+//   }
   
   // read calibrated sensor values and obtain a measure of the line position from 0 to 7000
   unsigned int line_position = qtrrc.readLine(sensorValues);
