@@ -131,22 +131,29 @@ void setup()
 
 void loop() // main loop
 {
-  // sense for stop points
-  //stop_line(sensorValues);
-    int stopcounter = 0;
-  // check if all sensors see black. stop motors if true
-  for (int x = 0; x<NUM_SENSORS; x++)
-  {
-    if (sensorValues[x] > 700){stopcounter = stopcounter + 1;}    
-  } 
-  if (stopcounter == 8)
-  {
-    m1speed = 0;
-    m2speed = 0;
-    delay(3000);
-  }
-  
+//  // sense for stop points
+//  //stop_line(sensorValues);
+//    int stopcounter = 0;
+//  // check if all sensors see black. stop motors if true
+//  for (int x = 0; x<NUM_SENSORS; x++)
+//  {
+//    if (sensorValues[x] > 700){stopcounter = stopcounter + 1;}    
+//  } 
+//  if (stopcounter == 8)
+//  {
+//    m1Speed = 0;
+//    m2Speed = 0;
+//    delay(3000);
+//  }
+//  
 
+  // check if 0,1,6,7 sensors are black
+  if ( (sensorValues[0] > 700) && (sensorValues[1] > 700) && (sensorValues[6]) > 700) && (sensorValues[7] > 700) )
+  {
+    m1Speed = 0;
+    m2Speed = 0;
+    delay(3000);
+   }
   
   // read calibrated sensor values and obtain a measure of the line position from 0 to 7000
   unsigned int line_position = qtrrc.readLine(sensorValues);

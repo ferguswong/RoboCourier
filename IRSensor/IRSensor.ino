@@ -11,6 +11,7 @@ int score = 0;
 
 void setup()
 {
+  pinMode(13,OUTPUT);
   pinMode(irSensorPin, INPUT);
   pinMode(irLedPin, OUTPUT);
   Serial.begin(9600); 
@@ -24,11 +25,16 @@ void loop()
 {  
   IRvalue = irRead(irSensorPin, irLedPin);
   if (IRvalue ==  1){  // if goal scored, add it up
+
+    
     score = score + 1;
     Serial.println("GOOOOOOOOL");
     Serial.println("score :");
     Serial.println(score);
+    digitalWrite(13, HIGH);
     delay(1000);
+    digitalWrite(13, LOW);
+    delay(100);
     }
   Serial.println(IRvalue); //display the results
   delay(10); //wait for the string to be sent
