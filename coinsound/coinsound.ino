@@ -98,6 +98,7 @@ void setup() {
 }
 
 void loop() {
+  tone(8,NOTE_B5,100);
   delay(100);
   tone(8,NOTE_E6,850);
   delay(800);
