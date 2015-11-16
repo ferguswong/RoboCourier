@@ -28,16 +28,16 @@ void loop()
 
     
     score = score + 1;
-    Serial.println("GOOOOOOOOL");
-    Serial.println("score :");
-    Serial.println(score);
+//    Serial.println("GOOOOOOOOL");
+//    Serial.println("score :");
+//    Serial.println(score);
     digitalWrite(13, HIGH);
     delay(1000);
     digitalWrite(13, LOW);
     delay(100);
     }
-  Serial.println(IRvalue); //display the results
-  delay(10); //wait for the string to be sent
+//  Serial.println(IRvalue); //display the results
+//  delay(10); //wait for the string to be sent
 }
 
 /******************************************************************************
