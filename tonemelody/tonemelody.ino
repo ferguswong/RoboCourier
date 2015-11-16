@@ -19,12 +19,12 @@ This example code is in the public domain.
 
 // notes in the melody:
 int melody[] = {
-  NOTE_C4, NOTE_C4, NOTE_C4, NOTE_D4, NOTE_E4, 0
+  NOTE_G4, NOTE_G4, NOTE_G4, NOTE_G4, NOTE_DS4, NOTE_F4, NOTE_G4, NOTE_F4, NOTE_G4
 };
 
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
 int noteDurations[] = {
-  4, 4, 4, 8, 8, 4
+  8, 8, 8,4,4,4,8,8,2
 };
 
 void setup() {
