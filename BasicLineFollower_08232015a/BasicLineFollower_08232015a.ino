@@ -51,12 +51,13 @@ int dir_a = 12;  //direction control for Ardumoto outputs A1 and A2 is on digita
 int dir_b = 13;  //direction control for Ardumoto outputs B3 and B4 is on digital pin 13  (Right motor)
 
 // motor tuning vars 
-int calSpeed = 165;   // tune value motors will run while auto calibration sweeping turn over line (0-255)
+int calSpeed = 100;   // tune value motors will run while auto calibration sweeping turn over line (0-255)
+int runspeed=100;     // tune value motors will run while line-following
 
 // Proportional Control loop vars
 float error=0;
 float PV =0 ;  // Process Variable value calculated to adjust speeds and keep on line
-float kp = 1;  // This is the Proportional value. Tune this value to affect follow_line performance
+float kp = 0.7;  // This is the Proportional value. Tune this value to affect follow_line performance
 int m1Speed=0; // (Left motor)
 int m2Speed=0; // (Right motor)
 
@@ -203,8 +204,8 @@ void follow_line(int line_position) //follow the line
       
       // adjust motor speeds to correct the path
       // Note that if PV > 0 the robot needs to turn left
-      m1Speed = 200 - PV;
-      m2Speed = 200 + PV;
+      m1Speed = runspeed - PV;
+      m2Speed = runspeed + PV;
      
       //set motor speeds
       digitalWrite(dir_a, LOW);  
