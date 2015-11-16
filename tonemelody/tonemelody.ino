@@ -17,17 +17,17 @@ This example code is in the public domain.
  */
 #include "pitches.h"
 
-// notes in the melody:
-int melody[] = {
+int pin = 16;
+
+void winSound() {
+  // notes in the melody:
+  int melody[] = {
   NOTE_G4, NOTE_G4, NOTE_G4, NOTE_G4, NOTE_DS4, NOTE_F4, NOTE_G4, NOTE_F4, NOTE_G4
-};
-
-// note durations: 4 = quarter note, 8 = eighth note, etc.:
-int noteDurations[] = {
-  8, 8, 8,4,4,4,8,8,2
-};
-
-void setup() {
+  };
+  // note durations: 4 = quarter note, 8 = eighth note, etc.:
+  int noteDurations[] = {
+    8, 8, 8, 4, 4, 4, 8, 8, 2
+  };
   // iterate over the notes of the melody:
   for (int thisNote = 0; thisNote < 8; thisNote++) {
 
@@ -35,17 +35,30 @@ void setup() {
     // divided by the note type.
     //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
     int noteDuration = 1000 / noteDurations[thisNote];
-    tone(8, melody[thisNote], noteDuration);
+    tone(pin, melody[thisNote], noteDuration);
 
     // to distinguish the notes, set a minimum time between them.
     // the note's duration + 30% seems to work well:
     int pauseBetweenNotes = noteDuration * 1.30;
     delay(pauseBetweenNotes);
     // stop the tone playing:
-    noTone(8);
+    noTone(pin);
   }
 }
 
+void coinSound() {
+  // coin sound
+  tone(pin,NOTE_B5,100);
+  delay(100);
+  tone(pin,NOTE_E6,850);
+  delay(800);
+  noTone(pin);
+}
+
+void setup() {
+  winSound();
+}
+
 void loop() {
-  // no need to repeat the melody.
+  coinSound();
 }
