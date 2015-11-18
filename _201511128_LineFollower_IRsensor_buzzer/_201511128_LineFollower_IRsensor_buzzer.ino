@@ -9,6 +9,7 @@
 
 //QTRSensors folder must be placed in your arduino libraries folder
 #include <QTRSensors.h>  // Pololu QTR Library 
+#include "pitches2.h"
 
 //line sensor defines
 #define NUM_SENSORS   8     // number of sensors used
@@ -50,9 +51,13 @@ int irRead(int readPin, int triggerPin); //function prototype
 int IRvalue;
 int score = 0;
 
+// Buzzer pin
+int pin = 16;
 
 void setup()
 {
+    winSound();
+  
   //Set control pins to be outputs
   pinMode(pwm_a, OUTPUT);  
   pinMode(pwm_b, OUTPUT);
@@ -125,6 +130,9 @@ void setup()
   Serial.println("Program Starting"); 
   // wait for the long string to be sent 
   delay(100); 
+
+
+  
 } // end setup
 
 
@@ -178,6 +186,7 @@ void loop() // main loop
     Serial.println("GOOOOOOOOL");
     Serial.println("score :");
     Serial.println(score);
+//    coinSound();
     delay(1000);
     }
   Serial.println(IRvalue); //display the results
@@ -293,3 +302,39 @@ int irRead(int readPin, int triggerPin)
 
 
 } // end irRead
+
+void winSound() {
+  // notes in the melody:
+  int melody[] = {
+  NOTE_G4, NOTE_G4, NOTE_G4, NOTE_G4, NOTE_DS4, NOTE_F4, NOTE_G4, NOTE_F4, NOTE_G4
+  };
+  // note durations: 4 = quarter note, 8 = eighth note, etc.:
+  int noteDurations[] = {
+    8, 8, 8, 4, 4, 4, 8, 8, 2
+  };
+  // iterate over the notes of the melody:
+  for (int thisNote = 0; thisNote < 8; thisNote++) {
+
+    // to calculate the note duration, take one second
+    // divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int noteDuration = 1000 / noteDurations[thisNote];
+    tone(pin, melody[thisNote], noteDuration);
+
+    // to distinguish the notes, set a minimum time between them.
+    // the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(pin);
+  }
+}
+
+void coinSound() {
+  // coin sound
+  tone(pin,NOTE_B5,100);
+  delay(100);
+  tone(pin,NOTE_E6,850);
+  delay(800);
+  noTone(pin);
+}
