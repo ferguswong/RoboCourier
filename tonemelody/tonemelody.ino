@@ -22,14 +22,14 @@ int pin = 16;
 void winSound() {
   // notes in the melody:
   int melody[] = {
-  NOTE_G4, NOTE_G4, NOTE_G4, NOTE_G4, NOTE_DS4, NOTE_F4, NOTE_G4, NOTE_F4, NOTE_G4
+  NOTE_G4, NOTE_G4, NOTE_G4, NOTE_G4, NOTE_DS4, NOTE_F4, NOTE_G4, 0, NOTE_F4, NOTE_G4
   };
   // note durations: 4 = quarter note, 8 = eighth note, etc.:
   int noteDurations[] = {
-    8, 8, 8, 4, 4, 4, 8, 8, 2
+    8, 8, 8, 4, 4, 4, 8, 16, 16, 1
   };
   // iterate over the notes of the melody:
-  for (int thisNote = 0; thisNote < 8; thisNote++) {
+  for (int thisNote = 0; thisNote < 10; thisNote++) {
 
     // to calculate the note duration, take one second
     // divided by the note type.
@@ -60,5 +60,5 @@ void setup() {
 }
 
 void loop() {
-  coinSound();
+  //coinSound();
 }
