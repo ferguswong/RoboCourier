@@ -5,6 +5,8 @@
  *  Cup: IR LED and IR sensor 
  *
  *  Game modes: continuous, around the world, random  
+ *  
+ *  20151118 1. change white line delay to timer. 2) re-solder 3) front mount
  */
 
 //QTRSensors folder must be placed in your arduino libraries folder
@@ -56,8 +58,6 @@ int pin = 16;
 
 void setup()
 {
-    winSound();
-  
   //Set control pins to be outputs
   pinMode(pwm_a, OUTPUT);  
   pinMode(pwm_b, OUTPUT);
@@ -142,7 +142,7 @@ void loop() // main loop
   // sense for stop points
   //stop_line(sensorValues);
     int stopcounter = 0;
-  // check if all sensors see black. stop motors if true
+  // check sensor array for all white space. stop motors if true
   for (int x = 0; x<NUM_SENSORS; x++)
   {
     if (sensorValues[x] < 200){stopcounter = stopcounter + 1;}    
@@ -165,6 +165,19 @@ void loop() // main loop
   }
   
 
+  // Detect goals ----------------------------------------------------------------------------------------
+  IRvalue = irRead(irSensorPin, irLedPin);
+  if (IRvalue ==  1){  // if goal scored, add it up
+    score = score + 1;
+//    Serial.println("GOOOOOOOOL");
+//    Serial.println("score :");
+//    Serial.println(score);
+    coinSound();
+    delay(500);
+    }
+//  Serial.println(IRvalue); //display the results
+  
+
 //  // check if 0,1,6,7 sensors are black
 //  if ( (sensorValues[0] > 200) && (sensorValues[1] > 700) && (sensorValues[6] > 700) && (sensorValues[7] > 700) )
 //  {
@@ -179,19 +192,14 @@ void loop() // main loop
   // begin line following
   follow_line(line_position);
 
-  // Detect goals ----------------------------------------------------------------------------------------
-  IRvalue = irRead(irSensorPin, irLedPin);
-  if (IRvalue ==  1){  // if goal scored, add it up
-    score = score + 1;
-    Serial.println("GOOOOOOOOL");
-    Serial.println("score :");
-    Serial.println(score);
-//    coinSound();
-    delay(1000);
-    }
-  Serial.println(IRvalue); //display the results
-  
 
+// WINNER if score 3 goals, play win music. reset score.
+  if (score == 3)
+    {
+      winSound();
+      score = 0;
+    }
+  
 }  // end main loop
 
 //
