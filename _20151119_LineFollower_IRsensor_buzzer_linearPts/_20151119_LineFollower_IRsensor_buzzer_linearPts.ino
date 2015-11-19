@@ -4,9 +4,9 @@
  *  Robot: Arduino + ardumotor shield, QTC8-RC IR sensor, Zagros chassis + motors
  *  Cup: IR LED and IR sensor 
  *
- *  Game modes: around the world
+ *  Game mode: increase point value at each sequential stop  
  *  
- *  20151118 1. change white line delay to timer. 2) re-solder 3) front mount
+ *  
  */
 
 //QTRSensors folder must be placed in your arduino libraries folder
@@ -58,6 +58,12 @@ int pin = 16;
 
 // toggle ballsensing (stopped) state and line following state (go)
 boolean go = 1;
+
+// track "stop" number; 
+int station_number = 0;
+
+unsigned long stopwatch_start;
+unsigned long currentMillis;
 
 void setup()
 {
@@ -142,9 +148,7 @@ void setup()
 
 void loop() // main loop -------------------------------------------------------------------------------------------------------- loop
 {
-  // sense for stop points
-  
-  //stop_line(sensorValues);
+  // Sense stop points (white bar)
     int stopcounter = 0;
   // check sensor array for all white space. stop motors if true
   for (int x = 0; x<NUM_SENSORS; x++)
@@ -153,7 +157,10 @@ void loop() // main loop -------------------------------------------------------
   } 
   if (stopcounter == 8)
   {
+    station_number = station_number + 1;
     go = 0; // toggle "go" to stop
+    
+    // pause motors
     m1Speed = 0;
     m2Speed = 0;
           digitalWrite(dir_a, LOW); 
@@ -161,10 +168,30 @@ void loop() // main loop -------------------------------------------------------
           analogWrite(pwm_a, m1Speed);
           analogWrite(pwm_b, m2Speed);
 
-
+    //play start melodies
+    
+    //start timer
+    stopwatch_start = millis();
     stopcounter = 0;
   }
-  
+  currentMillis = millis();
+
+  // timed stop, move on if time is up
+  if (currentMillis - stopwatch_start > 10000) // 10 seconds 
+  {
+    // play buzzer sound if no goals scored (timeup)
+
+    
+    // jump start the motors to put sensor back on black line
+      digitalWrite(dir_a, LOW);  
+      analogWrite(pwm_a, 120);
+      digitalWrite(dir_b, LOW);  
+      analogWrite(pwm_b, 120);
+      delay(500); 
+      
+    // trigger "go" to move to next stop station
+    go = 1;
+    }
 
   // Detect goals ----------------------------------------------------------------------------------------
 
@@ -172,12 +199,12 @@ void loop() // main loop -------------------------------------------------------
   if (go == 0) {
   IRvalue = irRead(irSensorPin, irLedPin);
   if (IRvalue ==  1){  // if goal scored, add it up
-    score = score + 1;
+    score = score + station_number;
 //    Serial.println("GOOOOOOOOL");
 //    Serial.println("score :");
 //    Serial.println(score);
     coinSound();
-    delay(500);
+    delay(100);
 
     // jump start the motors to put sensor back on black line
       digitalWrite(dir_a, LOW);  
@@ -200,13 +227,14 @@ void loop() // main loop -------------------------------------------------------
   if (go == 1) {follow_line(line_position);}
 
 
-// WINNER if score 3 goals, play win music. reset score.
-  if (score == 3)
-    {
-      winSound();
-      score = 0;
-    }
-  
+//// End game after 3rd station
+//  if (score == 3)
+//    {
+//      winSound();
+//      score = 0;
+//    }
+//  
+
 }  // end main loop
 
 //
