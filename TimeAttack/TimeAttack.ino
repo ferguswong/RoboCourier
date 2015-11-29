@@ -4,7 +4,14 @@
  *  Robot: Arduino + ardumotor shield, QTC8-RC IR sensor, Zagros chassis + motors
  *  Cup: IR LED and IR sensor 
  *
- *  Game mode: increase point value at each sequential stop  
+ *  Game mode: time attack:
+ *  - 3 stations
+ *  - bot will stop at each station
+ *  - waits 10 seconds for shots
+ *  - shots are worth 1 point for first station, 2 for second, 3 for third
+ *  - after third station, game is over
+ *  - bot plays back your score, plays a loser sound if you didn't score at all
+ *  
  *  
  *  
  */
