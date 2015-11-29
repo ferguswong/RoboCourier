@@ -190,34 +190,38 @@ void loop() // main loop -------------------------------------------------------
       analogWrite(pwm_b, 120);
       delay(500); 
       
-    // trigger "go" to move to next stop station
     go = 1;
+  }
+  if (station_number == 3 && go == 1) { //game over, all 3 station have been reached
+    if (score == 0) { // plays loser sound if you managed a score of 0
+      loser();
+      delay(1000);
     }
+    else { // plays winner sound if you managed to score at least once
+      winSound();
+      delay(1000);
+      for (int x = 0; x < score; x++){
+        coinSound();
+      } // plays your score back at you in terms of coinsound
+    }
+    // restart the game 
+    score = 0;
+    station_number = 0;
+  }
 
   // Detect goals ----------------------------------------------------------------------------------------
 
   // activate goalsensor if in "stop" state go=0
-  if (go == 0) {
-  IRvalue = irRead(irSensorPin, irLedPin);
-  if (IRvalue ==  1){  // if goal scored, add it up
-    score = score + station_number;
-//    Serial.println("GOOOOOOOOL");
-//    Serial.println("score :");
-//    Serial.println(score);
-    coinSound();
-    delay(100);
-
-    // jump start the motors to put sensor back on black line
-      digitalWrite(dir_a, LOW);  
-      analogWrite(pwm_a, 120);
-      digitalWrite(dir_b, LOW);  
-      analogWrite(pwm_b, 120);
-      delay(500); 
-
-    // set go into line-follow mode
-    go = 1;  
+  if (go == 0) { // go switches back to 1 only when time is up
+    IRvalue = irRead(irSensorPin, irLedPin);
+    if (IRvalue ==  1){  // if goal scored, add it up
+      score = score + station_number;
+  //    Serial.println("GOOOOOOOOL");
+  //    Serial.println("score :");
+  //    Serial.println(score);
+      coinSound();
+      delay(100);
     }
-//  Serial.println(IRvalue); //display the results
   } // close go=0 if statement
 
   
