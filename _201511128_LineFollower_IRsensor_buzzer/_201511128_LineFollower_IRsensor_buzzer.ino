@@ -10,6 +10,7 @@
  */
 
 //QTRSensors folder must be placed in your arduino libraries folder
+//Get it here: https://github.com/pololu/qtr-sensors-arduino
 #include <QTRSensors.h>  // Pololu QTR Library 
 #include "pitches2.h"
 
