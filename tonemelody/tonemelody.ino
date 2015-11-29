@@ -4,7 +4,7 @@
  Plays a melody
 
  circuit:
- * 8-ohm speaker on digital pin 8
+ * 8-ohm speaker on digital pin 16
 
  created 21 Jan 2010
  modified 30 Aug 2011
@@ -14,10 +14,14 @@ This example code is in the public domain.
 
  http://www.arduino.cc/en/Tutorial/Tone
 
+Code Modified by David Zong and Fergus Wong
+
  */
 #include "pitches.h"
 
 int pin = 16;
+boolean waiting = false;
+unsigned long current;
 
 void winSound() {
   // notes in the melody:
@@ -140,6 +144,16 @@ void setup() {
   loser();
 }
 
+// Testing millis() as a stopwatch feature
 void loop() {
-  //timeUp();
+  if (!waiting) {
+    readyStart();
+    waiting = true;
+    current = millis();
+  }
+  if (millis() - current > 10000){
+    timeUp();
+    waiting = false;
+    delay(2000);
+  }
 }
