@@ -12,7 +12,7 @@ The project has a major hardware component, which will be detailed in greater de
 - Zagros Gobbit Robot Kit
 - Polou QTR IR Sensor Array
 - IR Sensor
-- Piezo Buzzer
+- TDK Piezo Buzzer
 - White Paper
 - Sharpie Pen
 
