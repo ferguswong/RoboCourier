@@ -20,3 +20,8 @@ The project has a major hardware component, which will be detailed in greater de
 - QTRSensors folder must be placed in the Arduino Libraries folder before attempting to compile code
 - tones2.h must be present in each sketch folder
 - Arduino IDE for uploading code to Arduino (at least v1.6.5)
+
+#Included Programs
+- TimeAttack: the time attack game mode
+- _20151201_aroundtheworld: the around the world game mode
+- 
