@@ -4,13 +4,12 @@
  *  Robot: Arduino + ardumotor shield, QTC8-RC IR sensor, Zagros chassis + motors
  *  Cup: IR LED and IR sensor 
  *
- *  Game modes: continuous, around the world, random  
+ *  Game mode: increase point value at each sequential stop  
  *  
- *  20151118 1. change white line delay to timer. 2) re-solder 3) front mount
+ *  
  */
 
 //QTRSensors folder must be placed in your arduino libraries folder
-//Get it here: https://github.com/pololu/qtr-sensors-arduino
 #include <QTRSensors.h>  // Pololu QTR Library 
 #include "pitches2.h"
 
@@ -56,6 +55,17 @@ int score = 0;
 
 // Buzzer pin
 int pin = 16;
+
+// toggle ballsensing (stopped) state and line following state (go)
+boolean go = 1;
+
+// track "stop" number; 
+int station_number = 0;
+
+unsigned long stopwatch_start;
+unsigned long currentMillis;
+
+boolean waiting = false;
 
 void setup()
 {
@@ -138,69 +148,98 @@ void setup()
 
 
 
-void loop() // main loop
+void loop() // main loop -------------------------------------------------------------------------------------------------------- loop
 {
-  // sense for stop points
-  //stop_line(sensorValues);
+  // Sense stop points (white bar)
     int stopcounter = 0;
   // check sensor array for all white space. stop motors if true
   for (int x = 0; x<NUM_SENSORS; x++)
   {
     if (sensorValues[x] < 200){stopcounter = stopcounter + 1;}    
   } 
-  if (stopcounter == 8)
+  if (stopcounter == 8 && go)
   {
+    station_number = station_number + 1;
+    go = 0; // toggle "go" to stop
+    
+    // pause motors
     m1Speed = 0;
     m2Speed = 0;
           digitalWrite(dir_a, LOW); 
           digitalWrite(dir_b, LOW);  
           analogWrite(pwm_a, m1Speed);
           analogWrite(pwm_b, m2Speed);
-    delay(2000);
-      digitalWrite(dir_a, LOW);  
-      analogWrite(pwm_a, 120);
-      digitalWrite(dir_b, LOW);  
-      analogWrite(pwm_b, 120);
-    delay(500);
+
+    //play start melodies
+    readyStart();
+    //start timer
+    stopwatch_start = millis();
     stopcounter = 0;
   }
   
 
-  // Detect goals ----------------------------------------------------------------------------------------
-  IRvalue = irRead(irSensorPin, irLedPin);
-  if (IRvalue ==  1){  // if goal scored, add it up
-    score = score + 1;
-//    Serial.println("GOOOOOOOOL");
-//    Serial.println("score :");
-//    Serial.println(score);
-    coinSound();
-    delay(500);
+  // timed stop, move on if time is up
+  if (!go && (millis() - stopwatch_start > 10000)) // 10 seconds 
+  {
+    // play buzzer sound to mark time's up (timeup)
+    timeUp();
+    // jump start the motors to put sensor back on black line
+      digitalWrite(dir_a, LOW);  
+      analogWrite(pwm_a, 120);
+      digitalWrite(dir_b, LOW);  
+      analogWrite(pwm_b, 120);
+      delay(500); 
+      
+    go = 1;
+  }
+  if (station_number == 3 && go == 1) { //game over, all 3 station have been reached
+    if (score == 0) { // plays loser sound if you managed a score of 0
+      loser();
+      delay(1000);
     }
-//  Serial.println(IRvalue); //display the results
-  
+    else { // plays winner sound if you managed to score at least once
+      winSound();
+      delay(1000);
+      for (int x = 0; x < score; x++){
+        coinSound();
+      } // plays your score back at you in terms of coinsound
+    }
+    // restart the game 
+    score = 0;
+    station_number = 0;
+  }
 
-//  // check if 0,1,6,7 sensors are black
-//  if ( (sensorValues[0] > 200) && (sensorValues[1] > 700) && (sensorValues[6] > 700) && (sensorValues[7] > 700) )
-//  {
-//    m1Speed = 0;
-//    m2Speed = 0;
-//    delay(3000);
-//   }
+  // Detect goals ----------------------------------------------------------------------------------------
+
+  // activate goalsensor if in "stop" state go=0
+  if (go == 0) { // go switches back to 1 only when time is up
+    IRvalue = irRead(irSensorPin, irLedPin);
+    if (IRvalue ==  1){  // if goal scored, add it up
+      score = score + station_number;
+  //    Serial.println("GOOOOOOOOL");
+  //    Serial.println("score :");
+  //    Serial.println(score);
+      coinSound();
+      delay(100);
+    }
+  } // close go=0 if statement
+
   
   // read calibrated sensor values and obtain a measure of the line position from 0 to 7000
   unsigned int line_position = qtrrc.readLine(sensorValues);
  
-  // begin line following
-  follow_line(line_position);
+  // begin line following if "go" is 1
+  if (go == 1) {follow_line(line_position);}
 
 
-// WINNER if score 3 goals, play win music. reset score.
-  if (score == 3)
-    {
-      winSound();
-      score = 0;
-    }
-  
+//// End game after 3rd station
+//  if (score == 3)
+//    {
+//      winSound();
+//      score = 0;
+//    }
+//  
+
 }  // end main loop
 
 //
@@ -315,14 +354,14 @@ int irRead(int readPin, int triggerPin)
 void winSound() {
   // notes in the melody:
   int melody[] = {
-  NOTE_G4, NOTE_G4, NOTE_G4, NOTE_G4, NOTE_DS4, NOTE_F4, NOTE_G4, NOTE_F4, NOTE_G4
+  NOTE_G4, NOTE_G4, NOTE_G4, NOTE_G4, NOTE_DS4, NOTE_F4, NOTE_G4, 0, NOTE_F4, NOTE_G4
   };
   // note durations: 4 = quarter note, 8 = eighth note, etc.:
   int noteDurations[] = {
-    8, 8, 8, 4, 4, 4, 8, 8, 2
+    8, 8, 8, 4, 4, 4, 8, 16, 16, 1
   };
   // iterate over the notes of the melody:
-  for (int thisNote = 0; thisNote < 8; thisNote++) {
+  for (int thisNote = 0; thisNote < 10; thisNote++) {
 
     // to calculate the note duration, take one second
     // divided by the note type.
@@ -346,4 +385,84 @@ void coinSound() {
   tone(pin,NOTE_E6,850);
   delay(800);
   noTone(pin);
+}
+void timeUp() {
+    // notes in the melody:
+  int melody[] = {
+  NOTE_C2, 0, NOTE_C2, 0, NOTE_C2, 0
+  };
+  // note durations: 4 = quarter note, 8 = eighth note, etc.:
+  int noteDurations[] = {
+    16, 16, 16, 16, 16, 16
+  };
+  // iterate over the notes of the melody:
+  for (int thisNote = 0; thisNote < 6; thisNote++) {
+
+    // to calculate the note duration, take one second
+    // divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int noteDuration = 1000 / noteDurations[thisNote];
+    tone(pin, melody[thisNote], noteDuration);
+
+    // to distinguish the notes, set a minimum time between them.
+    // the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(pin);
+  }
+}
+
+void readyStart() {
+  // notes in the melody:
+  int melody[] = {
+  NOTE_C2, 0, NOTE_C2, 0, NOTE_C4
+  };
+  // note durations: 4 = quarter note, 8 = eighth note, etc.:
+  int noteDurations[] = {
+    4, 2, 4, 2, 1
+  };
+  // iterate over the notes of the melody:
+  for (int thisNote = 0; thisNote < 5; thisNote++) {
+
+    // to calculate the note duration, take one second
+    // divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int noteDuration = 1000 / noteDurations[thisNote];
+    tone(pin, melody[thisNote], noteDuration);
+
+    // to distinguish the notes, set a minimum time between them.
+    // the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(pin);
+  }
+}
+
+void loser() {
+  // notes in the melody:
+  int melody[] = {
+  NOTE_C5, 0, NOTE_B4, 0, NOTE_AS4
+  };
+  // note durations: 4 = quarter note, 8 = eighth note, etc.:
+  int noteDurations[] = {
+    4, 2, 4, 2, 1
+  };
+  // iterate over the notes of the melody:
+  for (int thisNote = 0; thisNote < 5; thisNote++) {
+
+    // to calculate the note duration, take one second
+    // divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int noteDuration = 1000 / noteDurations[thisNote];
+    tone(pin, melody[thisNote], noteDuration);
+
+    // to distinguish the notes, set a minimum time between them.
+    // the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(pin);
+  }
 }
